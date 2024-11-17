@@ -1,0 +1,28 @@
+service: sqs-demo
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - sqs:SendMessage
+       - sqs:ReceiveMessage
+       - sqs:DeleteMessage
+       - sqs:GetQueueAttributes
+      Resource: arn:aws:sqs:us-east-1:058264198774:WeatherRequests
+
+functions:
+  dequeue:
+    handler: handler.dequeue
+    events:
+      - sqs:
+          arn: arn:aws:sqs:us-east-1:058264198774:WeatherRequests
+          batchSize: 1
+
+  enqueue:
+    handler: handler.enqueue
+    events:
+      - http: 
+          path: forecast
+          method: get
